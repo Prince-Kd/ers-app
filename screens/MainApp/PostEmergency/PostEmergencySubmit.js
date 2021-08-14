@@ -11,6 +11,7 @@ import CheckBox from "react-native-check-box";
 import Modal from "react-native-modal";
 import { submitEmergencyInfo , getUser} from "../../../api/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as firebase from 'firebase';
 
 // import Geocoder from 'react-native-geocoding';
 // //---------------------------------------------------------------------------
@@ -20,7 +21,7 @@ export default class PostEmergencySubmit extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      photo: true,
+      photo: this.props.route.params.media ? true : false,
       modalVisible: false,
       type: this.props.route.params.type,
       media: this.props.route.params.media,
@@ -31,6 +32,9 @@ export default class PostEmergencySubmit extends Component {
       country: "",
       checkedAgreement: false,
       checkedInformation: false,
+      posterUserID: "",
+      userName: "loading...",
+      userPhone: "loading..."
     };
     this.onSubmit = this.onSubmit.bind(this);
     // this.geocode = this.geocode.bind(this);
@@ -49,23 +53,45 @@ export default class PostEmergencySubmit extends Component {
   //     .catch((error) => console.warn(error));
   // }
 
+  componentDidMount(){
+    return(
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          firebase
+          .database()
+          .ref("users/" + user.uid)
+          .once("value")
+          .then((snapshot) => {
+            const { userID, firstname, lastname, phoneNumber } = snapshot.val();
+            this.setState({
+              posterUserID: userID,
+              userName: firstname + " " + lastname,
+              userPhone: phoneNumber,
+            })
+          })
+        }
+      })
+    )
+  } 
+
+
   onSubmit() {
    
-    var posterUserID = getUser();
     if (this.state.checkedAgreement || this.state.checkedInformation) {
       submitEmergencyInfo(
-        "Fire outbreak in legon hall",
+        "Fire outbreak",
         this.state.description,
         this.state.media,
         this.state.damages,
         this.state.type,
         0,
-        posterUserID.uid,
+        this.state.posterUserID,
         this.state.pressCoordinates,
         false,
         this.state.town
       );
       this.setState({ modalVisible: true });
+      this.props.navigation.navigate("post")
     } else {
       alert(
         "You did not accept our posting agrrement. You cannot continue if you don't accept."
@@ -74,6 +100,7 @@ export default class PostEmergencySubmit extends Component {
   }
 
   render() {
+    
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
@@ -106,7 +133,7 @@ export default class PostEmergencySubmit extends Component {
                 }}
               >
                 <Text style={{ fontSize: 18, fontFamily: "Poppins-Regular" }}>
-                  Rediculously Huge Fire in Accra Sports Stadium
+                  {`${this.state.description}`}
                 </Text>
               </View>
               <Text
@@ -120,7 +147,6 @@ export default class PostEmergencySubmit extends Component {
                 {this.state.description}
               </Text>
               <Text style={{ fontFamily: "Poppins-Regular" }}>
-                Accra Zoo Park, Tema
               </Text>
               <Text
                 style={{
@@ -188,7 +214,7 @@ export default class PostEmergencySubmit extends Component {
                     marginTop: 10,
                   }}
                 >
-                  Posted by : Samuel Appau
+                  Posted by : {`${this.state.userName}`}
                 </Text>
                 <Text
                   style={{
@@ -197,7 +223,7 @@ export default class PostEmergencySubmit extends Component {
                     fontFamily: "Poppins-Regular",
                   }}
                 >
-                  Phone no: 0500228273
+                  Phone no: {`${this.state.userPhone}`}
                 </Text>
               </View>
             </View>

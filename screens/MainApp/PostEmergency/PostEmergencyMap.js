@@ -11,6 +11,7 @@ import {
   TextInput,
 } from "react-native";
 import MapView from "react-native-maps";
+import { getUser } from "../../../api/auth";
 
 export const getCurrentLocation = () => {
   return new Promise((resolve, reject) => {
@@ -77,7 +78,7 @@ export default class AddEmergencyMap extends Component {
         },
         {
           text: "Yes",
-          onPress: () =>
+          onPress: () => 
             this.props.navigation.navigate("submit", {
               type: this.state.type,
               media:this.state.media,
@@ -85,6 +86,7 @@ export default class AddEmergencyMap extends Component {
               // title: this.state.title,
               description: this.state.description,
               pressCoordinates: this.state.pressCoordinates,
+              user: getUser
             }),
         },
       ]

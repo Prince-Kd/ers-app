@@ -124,7 +124,7 @@ export default class SignUp extends Component {
     this.getFormValidation({ obj: "authInputs" });
     if (this.state.validForm) {
       Keyboard.dismiss();
-      const { authInputs, branch, department, responder, token } = this.state;
+      const { authInputs, department, responder, token } = this.state;
 
       const user = {
         first_name: authInputs.first_name.value,

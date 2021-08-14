@@ -13,7 +13,7 @@ import {
 import FormInput from "../../components/FormInput";
 import { validationService } from "../../util/validation";
 import * as Notifications from "expo-notifications";
-import { signUserIn } from "../../api/auth";
+import { signUserIn, facebookSignIn } from "../../api/auth";
 import Permissions from "expo-permissions";
 
 export default class SignIn extends Component {
@@ -88,7 +88,11 @@ export default class SignIn extends Component {
 
       signUserIn(user.email, user.password, this);
     }
-    this.resetUserInputs();
+  }
+
+  signInWithFacebook() {
+    this.setState({ loading: true });
+    facebookSignIn(this)
   }
 
   resetUserInputs() {
@@ -257,18 +261,30 @@ export default class SignIn extends Component {
                       justifyContent: "center",
                     }}
                   >
-                    <Image
-                      source={require("../../assets/images/auth/google.png")}
-                      style={{ width: 38, height: 38, marginHorizontal: 10 }}
-                    />
-                    <Image
-                      source={require("../../assets/images/auth/facebook.png")}
-                      style={{ width: 38, height: 38, marginHorizontal: 10 }}
-                    />
-                    <Image
-                      source={require("../../assets/images/auth/apple.png")}
-                      style={{ width: 38, height: 38, marginHorizontal: 10 }}
-                    />
+                    <TouchableOpacity style={{ width: 38, height: 38, marginHorizontal: 10 }}>
+                      <Image
+                        source={require("../../assets/images/auth/google.png")}
+                        style={{ width: 38, height: 38}}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                    style={{ width: 38, height: 38, marginHorizontal: 10 }}
+                    onPress={() => this.signInWithFacebook()}
+                    >
+                      <Image
+                        source={require("../../assets/images/auth/facebook.png")}
+                        style={{ width: 38, height: 38}}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                    style={{ width: 38, height: 38, marginHorizontal: 10 }}
+
+                    >
+                      <Image
+                        source={require("../../assets/images/auth/apple.png")}
+                        style={{ width: 38, height: 38, }}
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               </ScrollView>

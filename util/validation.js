@@ -64,10 +64,15 @@ const validationDictionary = {
     length: { minimum: 4, message: "^is tooShort" },
   },
 
+  newPassword: {
+    presence: { allowEmpty: false, message: "^is required" },
+    length: { minimum: 4, message: "^is tooShort" },
+  },
+
   confirmPassword: {
     presence: { allowEmpty: false, message: "^is required" },
     equality: {
-      attribute: "password",
+      attribute: "newPassword",
       message: "^doesntMatch",
       comparator: function (v1, v2) {
         return JSON.stringify(v1) === JSON.stringify(v2);
@@ -78,6 +83,22 @@ const validationDictionary = {
 
   phone: {
     presence: { allowEmpty: false, message: "^is required" },
+    format: {
+      pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
+      message: "^Phone number must be valid",
+    },
+  },
+
+  emergencyContact1: {
+    presence: { allowEmpty: true },
+    format: {
+      pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
+      message: "^Phone number must be valid",
+    },
+  },
+
+  emergencyContact2: {
+    presence: { allowEmpty: true },
     format: {
       pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
       message: "^Phone number must be valid",

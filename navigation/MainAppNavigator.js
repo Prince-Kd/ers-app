@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -24,12 +24,12 @@ const tabBarIcon = (name) => ({ focused, color, size }) => (
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const AccountStack = () => {
+const AccountStack = ({route}) => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="account" component={AccountScreen} />
-      <Stack.Screen name="edit_profile" component={EditProfile} />
-      <Stack.Screen name="change_password" component={ChangePassword} />
+      <Stack.Screen name="edit_profile" component={EditProfile} initialParams={{token: route.params.token}}/>
+      <Stack.Screen name="change_password" component={ChangePassword} initialParams={{token: route.params.token}} />
       <Stack.Screen name="notification" component={NotificationScreen} />
     </Stack.Navigator>
   );
@@ -45,7 +45,7 @@ const PostEmergencyStack = () => {
   );
 };
 
-const MainAppNavigator = () => {
+const MainAppNavigator = ({route}) => {
   return (
     <Tab.Navigator
       initialRouteName="Post"
@@ -74,6 +74,7 @@ const MainAppNavigator = () => {
         }}
         name="Account"
         component={AccountStack}
+        initialParams={{token: route.params.token}}
       />
     </Tab.Navigator>
   );
