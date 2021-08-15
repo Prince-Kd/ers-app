@@ -87,19 +87,20 @@ export default class SignIn extends Component {
       };
 
       signUserIn(user.email, user.password, this);
+      this.resetUserInputs(); 
     }
   }
 
   signInWithFacebook() {
     this.setState({ loading: true });
-    facebookSignIn(this)
+    facebookSignIn(this);
   }
 
   resetUserInputs() {
     this.setState({
       authInputs: {
         email: { type: "email", value: "" },
-        password: { type: "password", value: "" },
+        // password: { type: "password", value: "" },
       },
     });
   }

@@ -21,7 +21,11 @@
     "expo-asset": "~8.2.1",
     "expo-av": "~8.7.0",
     "expo-constants": "~9.3.3",
+<<<<<<< HEAD
     "expo-facebook": "~9.1.0",
+=======
+    "expo-facebook": "^11.3.1",
+>>>>>>> d2ce4d0030cc1afe5fba99fbcba44a8bf1ea19b5
     "expo-font": "~8.4.0",
     "expo-image-picker": "~9.2.0",
     "expo-images-picker": "^1.4.0",

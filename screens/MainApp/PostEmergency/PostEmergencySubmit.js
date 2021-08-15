@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import CheckBox from "react-native-check-box";
 import Modal from "react-native-modal";
-import { submitEmergencyInfo , getUser} from "../../../api/auth";
+import { submitEmergencyInfo, getUser } from "../../../api/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as firebase from 'firebase';
+import * as firebase from "firebase";
 
 // import Geocoder from 'react-native-geocoding';
 // //---------------------------------------------------------------------------
@@ -23,6 +23,7 @@ export default class PostEmergencySubmit extends Component {
     this.state = {
       photo: this.props.route.params.media ? true : false,
       modalVisible: false,
+      title: this.props.route.params.title,
       type: this.props.route.params.type,
       media: this.props.route.params.media,
       damages: this.props.route.params.damages,
@@ -34,7 +35,7 @@ export default class PostEmergencySubmit extends Component {
       checkedInformation: false,
       posterUserID: "",
       userName: "loading...",
-      userPhone: "loading..."
+      userPhone: "loading...",
     };
     this.onSubmit = this.onSubmit.bind(this);
     // this.geocode = this.geocode.bind(this);
@@ -145,8 +146,7 @@ export default class PostEmergencySubmit extends Component {
               >
                 {this.state.description}
               </Text>
-              <Text style={{ fontFamily: "Poppins-Regular" }}>
-              </Text>
+              <Text style={{ fontFamily: "Poppins-Regular" }}></Text>
               <Text
                 style={{
                   fontSize: 13,

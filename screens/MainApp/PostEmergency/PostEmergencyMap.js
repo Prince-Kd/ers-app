@@ -35,6 +35,7 @@ export default class AddEmergencyMap extends Component {
         latitudeDelta: 0.1,
         longitudeDelta: 0.1,
       },
+      title:this.props.route.params.title,
       type: this.props.route.params.type,
       description: this.props.route.params.description,
       media: this.props.route.params.media,
@@ -82,6 +83,7 @@ export default class AddEmergencyMap extends Component {
             this.props.navigation.navigate("submit", {
               type: this.state.type,
               media:this.state.media,
+              title:this.state.title,
               damages:this.state.damages,
               // title: this.state.title,
               description: this.state.description,

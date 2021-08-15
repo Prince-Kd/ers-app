@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Image, TouchableOpacity, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Keyboard,
+} from "react-native";
 import FormInput from "../../components/FormInput";
 import { validationService } from "../../util/validation";
 import { changePassword } from "../../api/auth";
@@ -26,7 +33,7 @@ export default class ChangePassword extends Component {
       loading: false,
       token: this.props.route.params.token
     };
-
+ 
     this.onInputChange = validationService.onInputChange.bind(this);
     this.getFormValidation = validationService.getFormValidation.bind(this);
     this.renderError = validationService.renderError.bind(this);

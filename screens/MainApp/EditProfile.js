@@ -11,9 +11,8 @@ import {
 import PagerView from "react-native-pager-view";
 import FormInput from "../../components/FormInput";
 import { validationService } from "../../util/validation";
-import { editProfile } from '../../api/auth';
-import * as firebase from 'firebase';
-
+import { editProfile } from "../../api/auth";
+import * as firebase from "firebase";
 
 export default class EditProfile extends Component {
   constructor(props) {
@@ -44,11 +43,19 @@ export default class EditProfile extends Component {
           type: "emergencyContact",
           value: "",
         },
+        emergencyContact1: {
+          type: "emergencyContact",
+          value: "",
+        },
+        emergencyContact2: {
+          type: "emergencyContact",
+          value: "",
+        },
       },
       password: this.props.route.params.password,
       validForm: true,
       loading: false,
-      token: this.props.route.params.token
+      token: this.props.route.params.token,
     };
 
     this.pagerRef = React.createRef();
@@ -57,42 +64,48 @@ export default class EditProfile extends Component {
     this.renderError = validationService.renderError.bind(this);
   }
 
-  componentDidMount(){
-    return(
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          firebase
+  componentDidMount() {
+    return firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        firebase
           .database()
           .ref("users/" + user.uid)
           .once("value")
           .then((snapshot) => {
-            const { userID, firstname, lastname, email, phoneNumber, emergency_contact_1, emergency_contact_2  } = snapshot.val();
+            const {
+              userID,
+              firstname,
+              lastname,
+              email,
+              phoneNumber,
+              emergency_contact_1,
+              emergency_contact_2,
+            } = snapshot.val();
             this.setState({
               authInputs: {
                 first_name: {
-                  value: firstname
+                  value: firstname,
                 },
                 last_name: {
-                  value: lastname
+                  value: lastname,
                 },
                 email: {
-                  value: email
+                  value: email,
                 },
                 phone: {
-                  value: phoneNumber
+                  value: phoneNumber,
                 },
                 emergencyContact1: {
-                  value: emergency_contact_1
+                  value: emergency_contact_1,
                 },
                 emergencyContact2: {
-                  value: emergency_contact_2
-                }
-              }
-            })
-          })
-        }
-      })
-    )
+                  value: emergency_contact_2,
+                },
+              },
+            });
+          });
+      }
+    });
   }
 
   render() {
@@ -108,7 +121,7 @@ export default class EditProfile extends Component {
       if (this.state.validForm) {
         Keyboard.dismiss();
         // this.resetUserInputs();
-        console.log(token)
+        console.log(token);
         const userData = {
           firstname: authInputs.first_name.value,
           lastname: authInputs.last_name.value,
@@ -117,10 +130,10 @@ export default class EditProfile extends Component {
           emergencyContact1: authInputs.emergencyContact1.value,
           emergencyContact2: authInputs.emergencyContact2.value,
           password: password,
-          token: token
-        }
-        console.log(userData)
-        editProfile(userData)
+          token: token,
+        };
+        console.log(userData);
+        editProfile(userData);
       }
     };
 
@@ -266,7 +279,11 @@ export default class EditProfile extends Component {
                   borderColor="#000"
                   placeholder="Emergency Contact no.1"
                   activeBorderColor="#000"
-                  error={this.renderError("authInputs", "emergencyContact1", "emergency contact 1")}
+                  error={this.renderError(
+                    "authInputs",
+                    "emergencyContact1",
+                    "emergency contact 1"
+                  )}
                   returnKeyType={"next"}
                   value={authInputs.emergencyContact1.value}
                   onChangeText={(value) => {
@@ -282,7 +299,11 @@ export default class EditProfile extends Component {
                   borderColor="#000"
                   placeholder="Emergency Contact no.2"
                   activeBorderColor="#000"
-                  error={this.renderError("authInputs", "emergencyContact1", "emergency contact 1")}
+                  error={this.renderError(
+                    "authInputs",
+                    "emergencyContact1",
+                    "emergency contact 1"
+                  )}
                   returnKeyType={"next"}
                   value={authInputs.emergencyContact2.value}
                   onChangeText={(value) => {
