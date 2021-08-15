@@ -79,7 +79,6 @@ export default class PostEmergencySubmit extends Component {
    
     if (this.state.checkedAgreement || this.state.checkedInformation) {
       submitEmergencyInfo(
-        "Fire outbreak",
         this.state.description,
         this.state.media,
         this.state.damages,

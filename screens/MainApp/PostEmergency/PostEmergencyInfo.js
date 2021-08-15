@@ -74,6 +74,8 @@ class PostEmergencyInfo extends Component {
       <View style={styles.container}>
         <PageHeader pageTitle={"Description"} />
         <ScrollView showsVerticalScrollIndicator={true}>
+
+          
           <View style={{ marginHorizontal: 7 }}>
             <View style={styles.card}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>

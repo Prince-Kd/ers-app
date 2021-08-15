@@ -103,7 +103,7 @@ export function signUserIn(providedEmail, providedPassword, that) {
           var email = providedEmail;
           var admin = snapshot.val() && snapshot.val().admin;
           that.setState({ loading: false });
-          that.props.navigation.navigate("main");
+          that.props.navigation.navigate("main", {token: ""});
         });
     })
     .catch(function (error) {
@@ -190,8 +190,15 @@ export const logout = (navigation) => {
   })
 };
 
+export const uploadImage = async (uri, emergencyId) => {
+  const response = await fetch(uri)
+  const blob = await response.blob()
+
+  var ref = firebase.storage().ref().child("images/" + emergencyId)
+  return ref.put(blob)
+}
+
 export function submitEmergencyInfo(
-  postTitle,
   postDescription,
   postImage,
   postSeverity,
@@ -213,11 +220,9 @@ export function submitEmergencyInfo(
     .toLocaleTimeString()
     .replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, "$1$3");
   var data = {
-    title: postTitle,
     description: postDescription,
     type: postType,
     score: postScore,
-    postImage: postImage,
     postSeverity: postSeverity,
     posterUserID: posterUserID,
     postRegion: postRegion,
@@ -239,12 +244,16 @@ export function submitEmergencyInfo(
   // Create a new ref and log it’s push key
   var postsRef = postsRef.push(data);
   console.log("post key", postsRef.key);
+
+  uploadImage(postImage, postsRef.key);
+
   firebase
     .database()
     .ref("/posts/" + postsRef.key)
     .update({
       postId: postsRef.key,
     });
+
   var length
   firebase
     .database()
