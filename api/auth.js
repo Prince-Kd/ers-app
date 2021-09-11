@@ -88,18 +88,16 @@ export function createUser({
 
 export function signUserIn(providedEmail, providedPassword, that) {
   var errorMessage = "";
-  firebase
-    .auth()
-    .signInWithEmailAndPassword(providedEmail, providedPassword)
+  firebase.auth().signInWithEmailAndPassword(providedEmail, providedPassword)
     .then((response) => {
-      var user = firebase.auth().currentUser;
-      var userId = user.uid;
-
       firebase
         .database()
         .ref("/users/" + userId)
         .once("value")
         .then(function (snapshot) {
+          if (snapshot.child(`${user.token}`).val() == ""){
+            firebase.database().ref("users/" + user.uid).update({token: that.state.token})
+          }
           that.setState({ loading: false });
           that.props.navigation.navigate("main", {token: ""});
         });
@@ -116,7 +114,9 @@ export function signUserIn(providedEmail, providedPassword, that) {
 }
 
 export async function facebookSignIn(that) {
-  await Facebook.initializeAsync("318456936574489"); // enter your Facebook App Id
+  await Facebook.initializeAsync({
+    appId: "318456936574489"
+  }); // enter your Facebook App Id
   const { type, token } = await Facebook.logInWithReadPermissionsAsync({
     permissions: ["public_profile", "email"],
   });
@@ -135,6 +135,9 @@ export async function facebookSignIn(that) {
           .once("value")
           .then((snapshot) => {
             if (snapshot.child(`${user.uid}`).exists()) {
+              if (snapshot.child(`${user.token}`).val() == ""){
+                firebase.database().ref("users/" + user.uid).update({token: that.state.token})
+              }
               that.setState({ loading: false });
               that.props.navigation.navigate("main", { token: token });
             } else {
@@ -276,6 +279,18 @@ export function getEmergencyData() {
   var items = [];
   var postsRef = firebase.database().ref("/posts");
   postsRef.on("value", function (snapshot) {
+    for (var key in snapshot.val()) {
+      var dataOb = snapshot.val()[key];
+      if (typeof dataOb === "object") items.push(dataOb);
+    }
+  });
+  return items;
+}
+
+export function getTips() {
+  var items = [];
+  var tipsRef = firebase.database().ref("tips");
+  tipsRef.on("value", (snapshot) => {
     for (var key in snapshot.val()) {
       var dataOb = snapshot.val()[key];
       if (typeof dataOb === "object") items.push(dataOb);

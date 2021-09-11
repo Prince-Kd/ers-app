@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -9,10 +9,12 @@ import AuthNavigator from "./AuthNavigator";
 import EditProfile from "../screens/MainApp/EditProfile";
 import ChangePassword from "../screens/MainApp/ChangePassword";
 import NotificationScreen from "../screens/MainApp/NotificationScreen";
+import EmergencyTipsScreen from "../screens/MainApp/EmergencyTipsScreen";
 import PostEmergencyMap from "../screens/MainApp/PostEmergency/PostEmergencyMap";
 import PostEmergencyScreen from "../screens/MainApp/PostEmergency/PostEmergencyScreen";
 import PostEmergencyInfo from "../screens/MainApp/PostEmergency/PostEmergencyInfo";
 import PostEmergencySubmit from "../screens/MainApp/PostEmergency/PostEmergencySubmit.js";
+import firebase from 'firebase';
 
 const tabBarIcon = (name) => ({ focused, color, size }) => (
   <MaterialCommunityIcons
@@ -31,6 +33,7 @@ const AccountStack = ({route}) => {
       <Stack.Screen name="edit_profile" component={EditProfile} initialParams={{token: route.params.token}}/>
       <Stack.Screen name="change_password" component={ChangePassword} initialParams={{token: route.params.token}} />
       <Stack.Screen name="notification" component={NotificationScreen} />
+      <Stack.Screen name="emergencyTips" component={EmergencyTipsScreen} />
     </Stack.Navigator>
   );
 };
@@ -46,6 +49,7 @@ const PostEmergencyStack = () => {
 };
 
 const MainAppNavigator = ({route}) => {
+
   return (
     <Tab.Navigator
       initialRouteName="Post"

@@ -163,7 +163,7 @@ class PostEmergencyInfo extends Component {
               <TextInput
                 multiline={true}
                 backgroundColor={"#FFFFFF"}
-                style={{ height: 100 }}
+                style={{ height: 100, paddingHorizontal: 10 }}
                 onChangeText={(text) =>
                   this.setState({
                     description: text,

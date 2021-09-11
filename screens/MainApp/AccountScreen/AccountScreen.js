@@ -15,7 +15,7 @@ import {
   Title,
   Icon,
 } from "./styles";
-import { logout } from "../../../api/auth";
+import { logout, getTips } from "../../../api/auth";
 import firebase from "firebase";
 
 const AccountScreen = ({ navigation, route }) => {
@@ -26,6 +26,7 @@ const AccountScreen = ({ navigation, route }) => {
   const [emergencyContact1, setEmergencyContact1] = useState("");
   const [emergencyContact2, setEmergencyContact2] = useState("");
   const [password, setPassword] = useState("");
+  const [tips, setTips] = useState([]);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -52,10 +53,12 @@ const AccountScreen = ({ navigation, route }) => {
             setPassword(password);
             setEmergencyContact1(emergency_contact_1);
             setEmergencyContact2(emergency_contact_2);
+            setTips(getTips())
           });
       }
     });
   });
+
 
   function handleSignOut() {
     Alert.alert("Logout", "Are you sure you want to logout", [
@@ -111,7 +114,7 @@ const AccountScreen = ({ navigation, route }) => {
         </View>
       </ProfileButton>
 
-      <ProfileButton style={{ margin: 2 }}>
+      <ProfileButton style={{ margin: 2 }} onPress={() => navigation.navigate("emergencyTips", {tips: tips})}>
         <Icon name="cube" />
         <Wrapper>
           <Title>Emergency Tips</Title>
@@ -130,7 +133,7 @@ const AccountScreen = ({ navigation, route }) => {
             <Text
               style={{ color: "#FFFFFF", fontSize: 12, textAlign: "center" }}
             >
-              2
+              {tips.length}
             </Text>
           </View>
         </View>

@@ -11,6 +11,7 @@ import {
   ScrollView,
   Picker,
   TextInput,
+  Platform
 } from "react-native";
 import PagerView from "react-native-pager-view";
 import FormInput from "../../components/FormInput";
@@ -19,7 +20,7 @@ import { validationService } from "../../util/validation";
 import CheckBox from "react-native-check-box";
 import { createUser } from "../../api/auth";
 import * as Notifications from "expo-notifications";
-import Permissions from "expo-permissions";
+import * as Permissions from "expo-permissions";
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -84,16 +85,14 @@ export default class SignUp extends Component {
     this.getFormValidation = validationService.getFormValidation.bind(this);
     this.renderError = validationService.renderError.bind(this);
     // this.signup = this.signup.bind(this);
-    this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(
-      this
-    );
+    this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(this);
   }
 
   componentDidMount() {
     this.registerForPushNotificationsAsync();
   }
 
-  async registerForPushNotificationsAsync() {
+  registerForPushNotificationsAsync = async () => {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
     );
@@ -112,11 +111,20 @@ export default class SignUp extends Component {
     if (finalStatus !== "granted") {
       return;
     }
-
     // Get the token that uniquely identifies this device
     let tokenVar = await Notifications.getExpoPushTokenAsync();
     console.log("PushNotificationToken:" + tokenVar);
-    this.setState({ token: tokenVar });
+    this.setState({ token: tokenVar }); 
+    
+    if (Platform.OS === 'android') {
+      Notifications.createChannelAndroidAsync('default', {
+        name: 'default',
+        sound: true,
+        priority: 'max',
+        vibrate: [0, 250, 250, 250],
+      });
+    }
+    
   }
 
   // signup() {
@@ -340,10 +348,10 @@ export default class SignUp extends Component {
         nationalID: authInputs.nationalID.value,
         stateLicense: authInputs.stateLicense.value,
         branch: authInputs.branch.value,
-        department: this.state.department,
-        responder: this.state.responder,
+        department: department,
+        responder: responder,
         medicalInfo: medInfo,
-        token: this.state.token,
+        token: token,
       };
 
       const loggedIn = createUser(user);

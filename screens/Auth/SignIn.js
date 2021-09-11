@@ -4,6 +4,7 @@ import {
   View,
   Text,
   Image,
+  Platform,
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
@@ -14,7 +15,7 @@ import FormInput from "../../components/FormInput";
 import { validationService } from "../../util/validation";
 import * as Notifications from "expo-notifications";
 import { signUserIn, facebookSignIn } from "../../api/auth";
-import Permissions from "expo-permissions";
+import * as Permissions from "expo-permissions";
 
 export default class SignIn extends Component {
   constructor(props) {
@@ -73,6 +74,16 @@ export default class SignIn extends Component {
     let tokenVar = await Notifications.getExpoPushTokenAsync();
     console.log("PushNotificationToken:" + tokenVar);
     this.setState({ token: tokenVar });
+
+    if (Platform.OS === 'android') {
+      Notifications.createChannelAndroidAsync('default', {
+        name: 'default',
+        sound: true,
+        priority: 'max',
+        vibrate: [0, 250, 250, 250],
+      });
+    }
+    
   }
 
   signin() {
@@ -99,8 +110,7 @@ export default class SignIn extends Component {
   resetUserInputs() {
     this.setState({
       authInputs: {
-        email: { type: "email", value: "" },
-        // password: { type: "password", value: "" },
+        password: { type: "password", value: "" },
       },
     });
   }
@@ -156,7 +166,7 @@ export default class SignIn extends Component {
                     activeBorderColor="#000"
                     error={this.renderError("authInputs", "email", "email")}
                     returnKeyType={"next"}
-                    value={authInputs.email.value}
+                    //value={authInputs.email.value}
                     onChangeText={(value) => {
                       this.onInputChange({
                         field: "email",
@@ -178,7 +188,7 @@ export default class SignIn extends Component {
                         "password"
                       )}
                       returnKeyType={"next"}
-                      value={authInputs.password.value}
+                      //value={authInputs.password.value}
                       onChangeText={(value) => {
                         this.onInputChange({
                           field: "password",

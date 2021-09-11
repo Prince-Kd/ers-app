@@ -17,6 +17,7 @@ import Comments from "./Comments";
 import renderIf from "../renderIf";
 import { data } from "../../jsonData/index";
 import { Ionicons } from "@expo/vector-icons";
+import getDirections from 'react-native-google-maps-directions'
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -63,6 +64,27 @@ export default class InfoModal extends Component {
     this.renderVerified = this.renderVerified.bind(this);
     this.shareIcon = this.shareIcon.bind(this);
     this.shareButton = this.shareButton.bind(this);
+    this.handleGetDirections = this.handleGetDirections.bind(this);
+  }
+
+  handleGetDirections = () => {
+    const data = {
+      destination: {
+        latitude: this.state.coordinates.latitude,
+        longitude: this.state.coordinates.longitude
+      },
+      params: [
+        {
+          key: "travelmode",
+          value: "driving"        // may be "walking", "bicycling" or "transit" as well
+        },
+        {
+          key: "dir_action",
+          value: "navigate"       // this instantly initializes navigation using the given travel mode
+        }
+      ],
+    }
+    getDirections(data)
   }
 
   imagePress(press) {
@@ -338,6 +360,9 @@ export default class InfoModal extends Component {
             <Text style={{ fontSize: 13, fontFamily: "Poppins-Regular" }}>
               Long: {this.state.coordinates.longitude}
             </Text>
+            <TouchableOpacity style={styles.getLoc} onPress={() => this.handleGetDirections()}>
+              <Text style={{fontWeight: 'bold', color: 'white'}}>GET DIRECTIONS TO LOCATION</Text>
+            </TouchableOpacity>
 
             <Text
               style={{
@@ -492,7 +517,7 @@ export default class InfoModal extends Component {
             />
           )}
         </View>
-        <View style={{ borderWidth: 0.5, borderColor: "lightgrey" }}>
+        <View style={{ borderWidth: 0.5, borderColor: "lightgrey", margin: 5}}>
           <Button
             color={Platform.OS === "ios" ? "" : "#32527B"}
             onPress={() => this.onModalClose()}
@@ -516,4 +541,13 @@ const styles = StyleSheet.create({
     backgroundColor: "grey",
     marginBottom: 10,
   },
+  getLoc: {
+    backgroundColor: "red", 
+    height: 50, 
+    width: 300, 
+    borderRadius: 5, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    paddingHorizontal: 10 
+  }
 });
