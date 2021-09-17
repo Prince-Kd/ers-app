@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import * as firebase from "firebase";
+import firebase from "firebase";
 import * as Facebook from "expo-facebook";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -85,7 +85,7 @@ export function createUser(
     })
     .then(function () {
       that.setState({ loading: false });
-      // that.props.navigation.navigate("signin",{token:token});
+      //that.props.navigation.navigate("signin",{token:token});
       that.props.navigation.navigate("signin")
     })
     .catch(function (error) {
@@ -363,8 +363,8 @@ export function getMyPosts(userId) {
 export function changePassword(
   oldpassword,
   newpassword,
-  confirmPassword
-  // token
+  confirmPassword,
+  token
 ) {
   const user = firebase.auth().currentUser;
   const email = user.email;
@@ -377,7 +377,7 @@ export function changePassword(
   if (provider == "password")
     credential = firebase.auth.EmailAuthProvider.credential(email, oldpassword);
   else if (provider == "facebook.com") {
-    // credential = firebase.auth.FacebookAuthProvider.credential(token);
+    credential = firebase.auth.FacebookAuthProvider.credential(token);
   }
 
   user
@@ -412,7 +412,7 @@ export function editProfile(userData) {
 
   var credential;
   if (provider == "password")
-    credential = firebase.auth.EmailAuthProvider.credential(email, oldpassword);
+    credential = firebase.auth.EmailAuthProvider.credential(userData.email, userData.password);
   else if (provider == "facebook.com") {
     credential = firebase.auth.FacebookAuthProvider.credential(userData.token);
   }

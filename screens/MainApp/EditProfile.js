@@ -73,15 +73,12 @@ export default class EditProfile extends Component {
   componentDidMount() {
     return firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        
         firebase
           .database()
           .ref("users/" + user.uid)
           .once("value")
           .then((snapshot) => {
-            if(snapshot.val()) this.setState({waiting: false})
             const {
-              userID,
               username,
               email,
               phoneNumber,
@@ -90,6 +87,7 @@ export default class EditProfile extends Component {
               medicalInfo
             } = snapshot.val();
             this.setState({
+              waiting: false,
               authInputs: {
                 username: {
                   value: username,
@@ -114,7 +112,7 @@ export default class EditProfile extends Component {
                 }
               },
               status: medicalInfo.healthStatus,
-              chronic: medicalInfo.chronic,
+              chronic: medicalInfo.chronicDisease,
               healthDesc: medicalInfo.healthDesc,
               respiratory: medicalInfo.respiratory,
               allergies: medicalInfo.allergies,
@@ -176,7 +174,7 @@ export default class EditProfile extends Component {
 
     if(this.state.waiting){
       return(
-        <View style={{backgroundColor: 'white', flex: 1}}>
+        <View style={{backgroundColor: 'white', flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ActivityIndicator size="large" color="#32527B" />
         </View>
       )
@@ -479,7 +477,7 @@ export default class EditProfile extends Component {
                             this.setState({ status: itemValue });
                           }}
                         >
-                          <Picker.Item label="Select an option" />
+                          <Picker.Item label="Select an option" value="" />
                           <Picker.Item label="Bad" value="Bad" />
                           <Picker.Item label="Good" value="Good" />
                           <Picker.Item
@@ -509,7 +507,7 @@ export default class EditProfile extends Component {
                             this.setState({ chronic: itemValue });
                           }}
                         >
-                          <Picker.Item label="Select an option" />
+                          <Picker.Item label="Select an option" value="" />
                           <Picker.Item label="None" value="None" />
                           <Picker.Item label="Epilesy" value="Epilesy" />
                           <Picker.Item

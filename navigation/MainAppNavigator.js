@@ -17,7 +17,7 @@ import PostEmergencySubmit from "../screens/MainApp/PostEmergency/PostEmergencyS
 import NewsFeed from "../screens/MainApp/NewsFeed";
 import Tips from "../screens/MainApp/TipsScreen";
 import TrackRespondents from "../screens/MainApp/TrackRespondents";
-import * as firebase from "firebase";
+import firebase from "firebase";
 
 const tabBarIcon = (name) => ({ focused, color, size }) => (
   <MaterialCommunityIcons
@@ -97,18 +97,19 @@ const MainAppNavigator = ({route}) => {
 };
 
 const AppStack = () => {
-  // const [initial, setInitial] = useState("auth")
-  // useEffect(() => {
-  //   firebase.auth().onAuthStateChanged((user) => {
-  //     if(user){
-  //       setInitial("main")
-  //       console.log(user.uid)
-  //     }
-  //   })
-  // }, [])
+  const [initial, setInitial] = useState("auth")
+
+  const switchStack = () => {
+    if(firebase.auth().currentUser){
+      setInitial("main")
+    }
+  }
+  useEffect(() => {
+    switchStack
+  }, )
   
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={firebase.auth().currentUser ? 'main' : 'auth'}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initial}>
       <Stack.Screen name="auth" component={AuthNavigator} />
       <Stack.Screen name="main" component={MainAppNavigator} />
     </Stack.Navigator>

@@ -41,9 +41,6 @@ export default class SignIn extends Component {
     this.getFormValidation = validationService.getFormValidation.bind(this);
     this.renderError = validationService.renderError.bind(this);
     this.signin = this.signin.bind(this);
-    this.registerForPushNotificationsAsync = this.registerForPushNotificationsAsync.bind(
-      this
-    );
   }
 
   componentDidMount() {}
