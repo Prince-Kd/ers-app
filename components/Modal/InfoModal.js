@@ -11,13 +11,15 @@ import {
   Platform,
   Share,
   Alert,
+  Linking
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 import Comments from "./Comments";
 import renderIf from "../renderIf";
 import { data } from "../../jsonData/index";
 import { Ionicons } from "@expo/vector-icons";
-import getDirections from 'react-native-google-maps-directions'
+import getDirections from 'react-native-google-maps-directions';
+import firebase from 'firebase';
 
 const deviceWidth = Dimensions.get("window").width;
 const deviceHeight = Dimensions.get("window").height;
@@ -38,10 +40,12 @@ export default class InfoModal extends Component {
       },
       town: this.props.dataClick.town,
       county: this.props.dataClick.county,
+      posterUserId: this.props.dataClick.posterUserID,
       upVotes: null,
       date: this.props.dataClick.date,
       time: this.props.dataClick.time,
       selected: null,
+      phone: "loading...",
       // commentData: this.props.dataClick.commentData,
       commentData: this.props.dataClick.commentData,
       numComments: this.props.dataClick.numComments,
@@ -64,7 +68,9 @@ export default class InfoModal extends Component {
     this.renderVerified = this.renderVerified.bind(this);
     this.shareIcon = this.shareIcon.bind(this);
     this.shareButton = this.shareButton.bind(this);
+    //this.getPostUserPhone = this.getPostUserPhone.bind(this);
     this.handleGetDirections = this.handleGetDirections.bind(this);
+    this.dialCall = this.dialCall.bind(this)
   }
 
   handleGetDirections = () => {
@@ -86,6 +92,27 @@ export default class InfoModal extends Component {
     }
     getDirections(data)
   }
+
+  getPostUserPhone = () => {
+    firebase.database().ref("users/" + this.state.posterUserId).once("value")
+    .then((snapshot) => {
+      //console.log(snapshot.val().phoneNumber)
+      this.setState({phone: snapshot.val().phoneNumber})
+    })
+  }
+
+  dialCall = () => {
+    let phoneNumber = '';
+ 
+    if (Platform.OS === 'android') {
+      phoneNumber = `tel:${this.state.phone}`;
+    }
+    else {
+      phoneNumber = `telprompt:${this.state.phone}`;
+    }
+ 
+    Linking.openURL(phoneNumber);
+  };
 
   imagePress(press) {
     if (this.state.selected == press) {
@@ -132,31 +159,31 @@ export default class InfoModal extends Component {
     this.props.toggle();
   }
 
-  _retrieveData = async () => {
-    try {
-      const value = await AsyncStorage.getItem("admin");
-      const id = await AsyncStorage.getItem("userID");
-      const name = await AsyncStorage.getItem("name");
+  // _retrieveData = async () => {
+  //   try {
+  //     const value = await AsyncStorage.getItem("admin");
+  //     const id = await AsyncStorage.getItem("userID");
+  //     const name = await AsyncStorage.getItem("name");
 
-      if (value !== null) {
-        var result = value == "true";
-        this.setState({ admin: result, userId: id, userfirstname: name });
-        var data = this.props.dataClick.score;
+  //     if (value !== null) {
+  //       var result = value == "true";
+  //       this.setState({ admin: result, userId: id, userfirstname: name });
+  //       var data = this.props.dataClick.score;
 
-        var Scorecount = 0;
-        for (var key in data) {
-          if (key == id) {
-            this.setState({ selected: "up" });
-          }
-          Scorecount++;
-        }
-        this.setState({ upVotes: Scorecount });
-      }
-    } catch (error) {}
-  };
+  //       var Scorecount = 0;
+  //       for (var key in data) {
+  //         if (key == id) {
+  //           this.setState({ selected: "up" });
+  //         }
+  //         Scorecount++;
+  //       }
+  //       this.setState({ upVotes: Scorecount });
+  //     }
+  //   } catch (error) {}
+  // };
 
-  componentWillMount() {
-    this._retrieveData();
+  componentDidMount() {
+    this.getPostUserPhone()
   }
 
   addUserComment() {
@@ -348,6 +375,12 @@ export default class InfoModal extends Component {
             <Text style={{ fontFamily: "Poppins-Regular" }}>
               {this.state.town}
             </Text>
+            <Text style={{ fontSize: 15, fontFamily: "Poppins-Regular" }}>
+              Phone Number: {this.state.phone}
+            </Text>
+            <TouchableOpacity style={[styles.getLoc, {backgroundColor: "#32527B", marginBottom: 10}]} onPress={() => this.dialCall()}>
+              <Text style={{fontWeight: 'bold', color: 'white'}}>CALL REPORTER</Text>
+            </TouchableOpacity>
             <Text
               style={{
                 fontSize: 13,

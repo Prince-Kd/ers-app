@@ -19,8 +19,7 @@ import { logout, getTips } from "../../../api/auth";
 import firebase from "firebase";
 
 const AccountScreen = ({ navigation, route }) => {
-  const [firstname, setFirstname] = useState("loading...");
-  const [lastname, setLastname] = useState("");
+  const [username, setUsername] = useState("loading...");
   const [email, setEmail] = useState("loading...");
   const [phone, setPhone] = useState("");
   const [emergencyContact1, setEmergencyContact1] = useState("");
@@ -38,16 +37,14 @@ const AccountScreen = ({ navigation, route }) => {
           .once("value")
           .then((snapshot) => {
             const {
-              firstname,
-              lastname,
+              username,
               email,
               phoneNumber,
               password,
               emergency_contact_1,
               emergency_contact_2,
             } = snapshot.val();
-            setFirstname(firstname);
-            setLastname(lastname);
+            setUsername(username);
             setEmail(email);
             setPhone(phoneNumber);
             setPassword(password);
@@ -81,7 +78,7 @@ const AccountScreen = ({ navigation, route }) => {
           }}
         />
         <ProfileInfo>
-          <Name>{`${firstname} ${lastname}`}</Name>
+          <Name>{`${username}`}</Name>
           <Email>{`${email}`}</Email>
         </ProfileInfo>
       </HeaderProfile>
@@ -106,7 +103,7 @@ const AccountScreen = ({ navigation, route }) => {
             }}
           >
             <Text
-              style={{ color: "#FFFFFF", fontSize: 12, textAlign: "center" }}
+              style={{ color: "#FFFFFF", fontSize: 10, textAlign: "center" }}
             >
               6
             </Text>
@@ -114,7 +111,10 @@ const AccountScreen = ({ navigation, route }) => {
         </View>
       </ProfileButton>
 
-      <ProfileButton style={{ margin: 2 }} onPress={() => navigation.navigate("emergencyTips", {tips: tips})}>
+      <ProfileButton
+        style={{ margin: 2 }}
+        onPress={() => navigation.navigate("tips")}
+      >
         <Icon name="cube" />
         <Wrapper>
           <Title>Emergency Tips</Title>
@@ -131,12 +131,24 @@ const AccountScreen = ({ navigation, route }) => {
             }}
           >
             <Text
-              style={{ color: "#FFFFFF", fontSize: 12, textAlign: "center" }}
+              style={{ color: "#FFFFFF", fontSize: 10, textAlign: "center" }}
             >
               {tips.length}
             </Text>
           </View>
         </View>
+      </ProfileButton>
+
+      <ProfileButton
+        style={{ margin: 2 }}
+        onPress={() =>
+          navigation.navigate("progress")
+        }
+      >
+        <Icon name="map-marker" />
+        <Wrapper>
+          <Title>Track Progress</Title>
+        </Wrapper>
       </ProfileButton>
 
       <ProfileButton

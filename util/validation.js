@@ -14,15 +14,11 @@ const validationDictionary = {
     },
   },
 
-  name: {
+  username: {
     presence: { allowEmpty: false, message: "^is required" },
+    length: { minimum: 3, message: "^is tooShort" },
   },
-  first_name: {
-    presence: { allowEmpty: false, message: "^is required" },
-  },
-  last_name: {
-    presence: { allowEmpty: false, message: "^is required" },
-  },
+
   email: {
     presence: { allowEmpty: false, message: "^is required" },
     email: { message: "^is notValid" },
@@ -61,12 +57,12 @@ const validationDictionary = {
 
   password: {
     presence: { allowEmpty: false, message: "^is required" },
-    length: { minimum: 4, message: "^is tooShort" },
+    length: { minimum: 6, message: "^is tooShort" },
   },
 
   newPassword: {
     presence: { allowEmpty: false, message: "^is required" },
-    length: { minimum: 4, message: "^is tooShort" },
+    length: { minimum: 6, message: "^is tooShort" },
   },
 
   confirmPassword: {
@@ -84,8 +80,8 @@ const validationDictionary = {
   phone: {
     presence: { allowEmpty: false, message: "^is required" },
     format: {
-      pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
-      message: "^Phone number must be valid",
+      pattern: "^(([0-9]*)|(([0-9]*)\.([0-9]*)))$",
+      message: "^ must be valid",
     },
   },
 
@@ -103,23 +99,6 @@ const validationDictionary = {
       pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
       message: "^Phone number must be valid",
     },
-  },
-
-  state: {
-    presence: { allowEmpty: false, message: "^is required" },
-    inclusion: {
-      within: ["AK", "AL", "AR"],
-      message: "^is notValid",
-    },
-  },
-
-  zip: {
-    presence: { allowEmpty: false, message: "^is required" },
-    length: { is: 5, message: "^Zip must be 5 digits long" },
-  },
-  nationalID: {
-    presence: { allowEmpty: true, message: "^is required" },
-    length: { is: 5, message: "^id no. must be 10 digits" },
   },
 };
 

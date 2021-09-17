@@ -13,8 +13,8 @@ import {
 } from "react-native";
 import FormInput from "../../components/FormInput";
 import { validationService } from "../../util/validation";
-import * as Notifications from "expo-notifications";
 import { signUserIn, facebookSignIn } from "../../api/auth";
+import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 
 export default class SignIn extends Component {
@@ -34,7 +34,7 @@ export default class SignIn extends Component {
       validForm: true,
       loading: false,
       token: "",
-      // isSecureEntry:true
+      // token: this.props.route.params.route,
     };
 
     this.onInputChange = validationService.onInputChange.bind(this);
@@ -46,11 +46,9 @@ export default class SignIn extends Component {
     );
   }
 
-  componentDidMount() {
-    this.registerForPushNotificationsAsync();
-  }
+  componentDidMount() {}
 
-  async registerForPushNotificationsAsync() {
+  registerForPushNotificationsAsync = async () => {
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
     );
@@ -69,12 +67,11 @@ export default class SignIn extends Component {
     if (finalStatus !== "granted") {
       return;
     }
-
     // Get the token that uniquely identifies this device
     let tokenVar = await Notifications.getExpoPushTokenAsync();
     console.log("PushNotificationToken:" + tokenVar);
-    this.setState({ token: tokenVar });
-
+    this.setState({ token: tokenVar }); 
+    
     if (Platform.OS === 'android') {
       Notifications.createChannelAndroidAsync('default', {
         name: 'default',
@@ -85,7 +82,7 @@ export default class SignIn extends Component {
     }
     
   }
-
+    
   signin() {
     this.setState({ loading: true });
     this.getFormValidation({ obj: "authInputs" });
@@ -98,7 +95,7 @@ export default class SignIn extends Component {
       };
 
       signUserIn(user.email, user.password, this);
-      this.resetUserInputs(); 
+      this.resetUserInputs();
     }
   }
 
@@ -110,6 +107,7 @@ export default class SignIn extends Component {
   resetUserInputs() {
     this.setState({
       authInputs: {
+        email: { type: "email", value: "" },
         password: { type: "password", value: "" },
       },
     });
@@ -166,7 +164,7 @@ export default class SignIn extends Component {
                     activeBorderColor="#000"
                     error={this.renderError("authInputs", "email", "email")}
                     returnKeyType={"next"}
-                    //value={authInputs.email.value}
+                    value={authInputs.email.value}
                     onChangeText={(value) => {
                       this.onInputChange({
                         field: "email",
@@ -188,7 +186,7 @@ export default class SignIn extends Component {
                         "password"
                       )}
                       returnKeyType={"next"}
-                      //value={authInputs.password.value}
+                      value={authInputs.password.value}
                       onChangeText={(value) => {
                         this.onInputChange({
                           field: "password",

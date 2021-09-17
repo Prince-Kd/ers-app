@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as firebase from "firebase";
 import * as Facebook from "expo-facebook";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAnviofAwpud7RI5hOzvJPyuzqzHJ8t19A",
@@ -16,26 +16,35 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-export function createUser({
-  first_name,
-  last_name,
-  email,
-  phone,
-  password,
-  confirmPassword,
-  nationalID,
-  stateLicense,
-  branch,
-  department,
-  responder,
-  medicalInfo,
-  token,
-}) {
+export const firstTimeUser = async (value) => {
+  try{
+    await AsyncStorage.setItem('firstTime', value)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+export function createUser(
+  {
+    username,
+    email,
+    phone,
+    password,
+    confirmPassword,
+    stateLicense,
+    branch,
+    department,
+    responder,
+    token,
+  },
+  that
+) {
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
     .then((data) => {
       const userID = data.user.uid;
+      firstTimeUser("no")
       firebase
         .database()
         .ref("users/" + userID)
@@ -43,9 +52,7 @@ export function createUser({
           userID: userID,
           email: email,
           password: password,
-          firstname: first_name,
-          lastname: last_name,
-          nationalID: nationalID,
+          username: username,
           phoneNumber: phone,
           stateLicense: stateLicense,
           confirmPassword: confirmPassword,
@@ -53,7 +60,15 @@ export function createUser({
           branch: branch,
           department: department,
           responder: responder,
-          medicalInfo: medicalInfo,
+          medicalInfo: {
+            height: "",
+            weight: "",
+            healthStatus: "",
+            chronicDisease: "",
+            healthDesc: "",
+            respiratory: "",
+            allergies: "",
+          },
           token: token,
           emergency_contact_1: "",
           emergency_contact_2: "",
@@ -62,26 +77,23 @@ export function createUser({
         .auth()
         .currentUser.sendEmailVerification()
         .then(
-          function () {
-            // Email sent.
-          },
+          function () {},
           function (error) {
-            // An error happened.
+            Alert.alert(error);
           }
         );
+    })
+    .then(function () {
+      that.setState({ loading: false });
+      // that.props.navigation.navigate("signin",{token:token});
+      that.props.navigation.navigate("signin")
     })
     .catch(function (error) {
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
-      if (errorCode === "auth/wrong-password") {
-        alert("Wrong password.");
-        return false;
-      } else {
-        alert("Error code:" + errorCode + "\n" + errorMessage);
 
-        return false;
-      }
+      alert("Error code:" + errorCode + "\n" + errorMessage);
     });
   return true;
 }
@@ -90,17 +102,18 @@ export function signUserIn(providedEmail, providedPassword, that) {
   var errorMessage = "";
   firebase.auth().signInWithEmailAndPassword(providedEmail, providedPassword)
     .then((response) => {
+      const userId = response.user.uid;
       firebase
         .database()
         .ref("/users/" + userId)
         .once("value")
         .then(function (snapshot) {
           if (snapshot.child(`${user.token}`).val() == ""){
-            firebase.database().ref("users/" + user.uid).update({token: that.state.token})
+            firebase.database().ref("users/"+userId).update({token: that.state.token})
           }
-          that.setState({ loading: false });
-          that.props.navigation.navigate("main", {token: ""});
         });
+        that.setState({ loading: false });
+        that.props.navigation.navigate("main", {token: ""});
     })
     .catch(function (error) {
       // Handle Errors here.
@@ -129,6 +142,7 @@ export async function facebookSignIn(that) {
       .signInWithCredential(credential)
       .then(({ user }) => {
         // All the details about user are in here returned from firebase
+        firstTimeUser("no")
         firebase
           .database()
           .ref("users")
@@ -147,10 +161,19 @@ export async function facebookSignIn(that) {
                 .set({
                   userID: user.uid,
                   email: user.email,
-                  firstname: user.displayName.split(" ")[0],
-                  lastname: user.displayName.split(" ")[1],
+                  username: user.displayName,
                   phoneNumber: user.phoneNumber ? user.phoneNumber : "",
                   numPosts: 0,
+                  responder: false,
+                  medicalInfo: {
+                    height: "",
+                    weight: "",
+                    healthStatus: "",
+                    chronicDisease: "",
+                    healthDesc: "",
+                    respiratory: "",
+                    allergies: "",
+                  },
                   token: that.state.token,
                   emergency_contact_1: "",
                   emergency_contact_2: "",
@@ -201,12 +224,15 @@ export const logout = (navigation) => {
 };
 
 export const uploadImage = async (uri, emergencyId) => {
-  const response = await fetch(uri)
-  const blob = await response.blob()
+  const response = await fetch(uri);
+  const blob = await response.blob();
 
-  var ref = firebase.storage().ref().child("images/" + emergencyId)
-  return ref.put(blob)
-}
+  var ref = firebase
+    .storage()
+    .ref()
+    .child("images/" + emergencyId);
+  return ref.put(blob);
+};
 
 export function submitEmergencyInfo(
   postDescription,
@@ -253,7 +279,6 @@ export function submitEmergencyInfo(
   var postsRef = ref.child("posts");
   // Create a new ref and log it’s push key
   var postsRef = postsRef.push(data);
-  console.log("post key", postsRef.key);
 
   uploadImage(postImage, postsRef.key);
 
@@ -287,10 +312,10 @@ export function getEmergencyData() {
   return items;
 }
 
-export function getTips() {
+export function getTipsData() {
   var items = [];
-  var tipsRef = firebase.database().ref("tips");
-  tipsRef.on("value", (snapshot) => {
+  var postsRef = firebase.database().ref("/tips");
+  postsRef.on("value", function (snapshot) {
     for (var key in snapshot.val()) {
       var dataOb = snapshot.val()[key];
       if (typeof dataOb === "object") items.push(dataOb);
@@ -338,7 +363,7 @@ export function getMyPosts(userId) {
 export function changePassword(
   oldpassword,
   newpassword,
-  confirmPassword,
+  confirmPassword
   // token
 ) {
   const user = firebase.auth().currentUser;
@@ -402,10 +427,10 @@ export function editProfile(userData) {
             .database()
             .ref("users/" + userId)
             .update({
-              firstname: userData.firstname,
-              lastname: userData.lastname,
+              username: userData.username,
               email: userData.email,
               phoneNumber: userData.phone,
+              medicalInfo: userData.medInfo,
               emergency_contact_1: userData.emergencyContact1,
               emergency_contact_2: userData.emergencyContact2,
             });
@@ -478,3 +503,20 @@ export const getUser = () => {
 
   return items;
 };
+
+export function getUserData() {
+  const items = [];
+  const userRef = firebase.database().ref("/users");
+  userRef.on("value", function (snapshot) {
+    for (var key in snapshot.val()) {
+      var dataOb = snapshot.val()[key];
+      if (typeof dataOb === "object") items.push(dataOb);
+    }
+  });
+
+  const responders = items.filter(function (data) {
+    return data.responder === true;
+  });
+
+  return responders;
+}

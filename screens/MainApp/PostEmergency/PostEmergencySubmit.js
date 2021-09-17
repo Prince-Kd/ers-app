@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import CheckBox from "react-native-check-box";
 import Modal from "react-native-modal";
-import { submitEmergencyInfo, getUser } from "../../../api/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { submitEmergencyInfo } from "../../../api/auth";
+import * as ImagePicker from "expo-image-picker";
+import { FontAwesome5 } from "@expo/vector-icons";
 import * as firebase from "firebase";
 
 // import Geocoder from 'react-native-geocoding';
@@ -21,7 +22,7 @@ export default class PostEmergencySubmit extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      photo: this.props.route.params.media ? true : false,
+      photo: this.props.route.params.media != null ? true : false,
       modalVisible: false,
       title: this.props.route.params.title,
       type: this.props.route.params.type,
@@ -40,6 +41,27 @@ export default class PostEmergencySubmit extends Component {
     this.onSubmit = this.onSubmit.bind(this);
     // this.geocode = this.geocode.bind(this);
   }
+
+  _pickImage = async () => {
+    // Ask the user for the permission to access the camera
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your camera!");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync();
+
+    if (!result.cancelled) {
+      this.setState({
+        LocalImage: result.uri,
+      });
+    }
+    this.setState({
+      photo: true,
+    });
+  };
 
   // geocode() {
   //   Geocoder.from(
@@ -63,10 +85,10 @@ export default class PostEmergencySubmit extends Component {
           .ref("users/" + user.uid)
           .once("value")
           .then((snapshot) => {
-            const { userID, firstname, lastname, phoneNumber } = snapshot.val();
+            const { userID, username, phoneNumber } = snapshot.val();
             this.setState({
               posterUserID: userID,
-              userName: firstname + " " + lastname,
+              userName: username,
               userPhone: phoneNumber,
             })
           })
@@ -91,7 +113,7 @@ export default class PostEmergencySubmit extends Component {
         this.state.town
       );
       this.setState({ modalVisible: true });
-      this.props.navigation.navigate("post")
+      // this.props.navigation.navigate("post");
     } else {
       alert(
         "You did not accept our posting agrrement. You cannot continue if you don't accept."
@@ -116,8 +138,8 @@ export default class PostEmergencySubmit extends Component {
           </Text>
           <View
             style={{
-              marginHorizontal: 4,
-              backgroundColor: "#F0F8FF",
+              marginHorizontal: 8,
+              backgroundColor: "#FFFFFF",
               borderRadius: 4,
             }}
           >
@@ -174,25 +196,38 @@ export default class PostEmergencySubmit extends Component {
               >
                 Long: {this.state.pressCoordinates.longitude}
               </Text>
-              <View
-                style={{
-                  borderTopWidth: 0.8,
-                  borderColor: "lightgrey",
-                  width: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <View>
-                  <CheckBox
-                    style={{ padding: 5 }}
-                    isChecked={this.state.damages}
-                    rightText={"Human Damages."}
-                  />
-                  <CheckBox
-                    style={{ padding: 5 }}
-                    isChecked={this.state.photo}
-                    rightText={"Image or Video Attached"}
-                  />
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontFamily: "Poppins-Regular" }}>
+                  Multimedia :
+                </Text>
+                <View style={{ marginLeft: 10, marginTop: 5 }}>
+                  {this.state.photo === false ? (
+                    <>
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          fontStyle: "italic",
+                          fontFamily: "Poppins-Regular",
+                          marginVertical: 20,
+                        }}
+                      >
+                        Image will be placed here
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <View style={styles.imgcontainer}>
+                        <View style={{ alignSelf: "center" }}>
+                          {this.state.media && (
+                            <Image
+                              source={{ uri: this.state.media }}
+                              style={{ width: 220, height: 100 }}
+                            />
+                          )}
+                        </View>
+                      </View>
+                    </>
+                  )}
                 </View>
               </View>
 
@@ -240,6 +275,11 @@ export default class PostEmergencySubmit extends Component {
               rightText={
                 "By clicking here and submitting, you are agreeing that the information you just posted about an emergency is valid, truthful, and currently occuring."
               }
+              rightTextStyle={{
+                fontFamily: "Poppins-Regular",
+                fontSize: 12,
+                marginTop: 5,
+              }}
             />
           </View>
           <View
@@ -267,6 +307,7 @@ export default class PostEmergencySubmit extends Component {
             </TouchableOpacity>
           </View>
         </View>
+
         <Modal
           isVisible={this.state.modalVisible}
           onBackdropPress={() => this.setState({ modalVisible: false })}
@@ -281,13 +322,23 @@ export default class PostEmergencySubmit extends Component {
               maxHeight: 300,
             }}
           >
-            <Image
+            <FontAwesome5 name="check-circle" size={70} color="black" />
+            {/* <Image
               source={require("../../../assets/images/main/verify.png")}
               style={{ width: 120, height: 120 }}
-            />
+            /> */}
             <Text style={{ fontSize: 20, textAlign: "center" }}>
               Your emergency has been submitted successfully
             </Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                { borderWidth: 1, borderColor: "#32527B" },
+              ]}
+              onPress={() => this.props.navigation.navigate("post")}
+            >
+              <Text style={[styles.btnText, { color: "#000000" }]}>DONE</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
       </ScrollView>

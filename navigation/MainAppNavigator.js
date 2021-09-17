@@ -14,7 +14,10 @@ import PostEmergencyMap from "../screens/MainApp/PostEmergency/PostEmergencyMap"
 import PostEmergencyScreen from "../screens/MainApp/PostEmergency/PostEmergencyScreen";
 import PostEmergencyInfo from "../screens/MainApp/PostEmergency/PostEmergencyInfo";
 import PostEmergencySubmit from "../screens/MainApp/PostEmergency/PostEmergencySubmit.js";
-import firebase from 'firebase';
+import NewsFeed from "../screens/MainApp/NewsFeed";
+import Tips from "../screens/MainApp/TipsScreen";
+import TrackRespondents from "../screens/MainApp/TrackRespondents";
+import * as firebase from "firebase";
 
 const tabBarIcon = (name) => ({ focused, color, size }) => (
   <MaterialCommunityIcons
@@ -30,10 +33,11 @@ const AccountStack = ({route}) => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="account" component={AccountScreen} />
-      <Stack.Screen name="edit_profile" component={EditProfile} initialParams={{token: route.params.token}}/>
-      <Stack.Screen name="change_password" component={ChangePassword} initialParams={{token: route.params.token}} />
+      <Stack.Screen name="edit_profile" component={EditProfile} initialParams={{token: route.params ? route.params.token : ""}}/>
+      <Stack.Screen name="change_password" component={ChangePassword} initialParams={{token: route.params ? route.params.token : ""}} />
       <Stack.Screen name="notification" component={NotificationScreen} />
-      <Stack.Screen name="emergencyTips" component={EmergencyTipsScreen} />
+      <Stack.Screen name="progress" component={TrackRespondents} />
+      <Stack.Screen name="tips" component={Tips} />
     </Stack.Navigator>
   );
 };
@@ -67,26 +71,44 @@ const MainAppNavigator = ({route}) => {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: tabBarIcon("post"),
+          tabBarIcon: tabBarIcon("newspaper-variant-multiple-outline"),
+        }}
+        name="News"
+        component={NewsFeed}
+      />
+      <Tab.Screen
+        options={{
+          tabBarIcon: tabBarIcon("alert-box"),
         }}
         name="Post"
         component={PostEmergencyStack}
       />
+
       <Tab.Screen
         options={{
           tabBarIcon: tabBarIcon("account"),
         }}
         name="Account"
         component={AccountStack}
-        initialParams={{token: route.params.token}}
+        initialParams={{token: route.params ? route.params.token : ""}}
       />
     </Tab.Navigator>
   );
 };
 
 const AppStack = () => {
+  // const [initial, setInitial] = useState("auth")
+  // useEffect(() => {
+  //   firebase.auth().onAuthStateChanged((user) => {
+  //     if(user){
+  //       setInitial("main")
+  //       console.log(user.uid)
+  //     }
+  //   })
+  // }, [])
+  
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={firebase.auth().currentUser ? 'main' : 'auth'}>
       <Stack.Screen name="auth" component={AuthNavigator} />
       <Stack.Screen name="main" component={MainAppNavigator} />
     </Stack.Navigator>
